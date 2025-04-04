@@ -7,7 +7,7 @@ export default function DemosPage() {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">Demo Preparation Hub</h1>
+        <h1 className="text-2xl font-bold mb-2">Demo Archives</h1>
         <p className="text-gray-600">
           Organize and prepare for upcoming demos, review past sessions, and track action items
         </p>

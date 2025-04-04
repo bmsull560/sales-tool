@@ -5,7 +5,8 @@ import {
   PieChart, 
   Presentation, 
   BarChart4,
-  Settings
+  Settings,
+  FileText
 } from "lucide-react";
 
 export function Sidebar() {
@@ -18,7 +19,8 @@ export function Sidebar() {
         <SidebarItem href="/companies" icon={<Building2 size={20} />} label="Companies" />
         <SidebarItem href="/personas" icon={<Users size={20} />} label="Personas" />
         <SidebarItem href="/value-mapping" icon={<PieChart size={20} />} label="Value Mapping" />
-        <SidebarItem href="/demos" icon={<Presentation size={20} />} label="Demo Storyboard" />
+        <SidebarItem href="/demos" icon={<Presentation size={20} />} label="Demo Archives" />
+        <SidebarItem href="/demos/preparation" icon={<FileText size={20} />} label="Demo Preparation" />
         <SidebarItem href="/roi" icon={<BarChart4 size={20} />} label="ROI & Business Case" />
       </nav>
       <div className="p-4 border-t border-slate-800">

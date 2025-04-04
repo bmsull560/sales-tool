@@ -84,7 +84,7 @@ export default function DemoCalibrator(): ReactNode {
     setValues((prev: CalibratorValues) => ({ ...prev, [key]: value[0] }));
   };
 
-  const generateScript = async () => {
+  const generateScript = () => {
     setIsGenerating(true);
     
     try {
@@ -102,10 +102,9 @@ export default function DemoCalibrator(): ReactNode {
       // that interfaces with an LLM to generate the script
       // For now, we'll simulate a response with a timeout
       
-      // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const simulatedResponse = `# Demo Script: ${industry} Solution Presentation
+      // Simulated API call using setTimeout instead of async/await
+      setTimeout(() => {
+        const simulatedResponse = `# Demo Script: ${industry} Solution Presentation
 
 ## Opening (30 seconds)
 "Today I'll show you how our platform addresses ${industry === 'Healthcare' ? 'compliance and data privacy challenges' : 
@@ -135,10 +134,12 @@ you need with ${values.maturity > 80 ? 'mature capabilities' : 'innovative appro
 ${values.stage > 80 ? 'deliver measurable ROI' : 'solve your critical challenges'}. 
 Let's discuss next steps for ${values.authority > 80 ? 'a strategic evaluation' : 'a departmental pilot'}."`;
 
-      setScriptOutput(simulatedResponse);
+        setScriptOutput(simulatedResponse);
+        setIsGenerating(false);
+      }, 1500);
+      
     } catch (error) {
       setScriptOutput("Error generating script. Please try again.");
-    } finally {
       setIsGenerating(false);
     }
   };

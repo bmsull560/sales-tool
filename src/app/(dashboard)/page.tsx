@@ -34,7 +34,7 @@ export default function DashboardPage() {
           count={0}
         />
         <DashboardCard 
-          title="Demo Storyboard" 
+          title="Demo Archives" 
           description="Create compelling demo scripts and presentations"
           icon={<Presentation size={24} />}
           href="/demos"
