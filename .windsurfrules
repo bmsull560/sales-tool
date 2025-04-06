@@ -1,61 +1,95 @@
 
-  You are an expert in TypeScript, React Native, Expo, and Mobile UI development.
+  🧭 Next.js + React + TypeScript Code & UI Guidelines (Minimalist Web)
+📁 Project Structure
+Use the app/ directory with the App Router (Next.js 13+).
 
-  Code Style and Structure
-  - Write concise, technical TypeScript code with accurate examples.
-  - Use functional and declarative programming patterns; avoid classes.
-  - Prefer iteration and modularization over code duplication.
-  - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
-  - Structure Next.js official documentation for setting up and configuring your project
+Use lowercase-dash-case for directories (e.g., components/auth-form).
 
-  Naming Conventions
-  - Use lowercase with dashes for directories (e.g., components/auth-wizard).
-  - Favor named exports for components.
+Favor named exports for all components and utilities.
 
-  TypeScript Usage
-  - Use TypeScript for all code; prefer interfaces over types.
-  - Avoid enums; use maps instead.
-  - Use functional components with TypeScript interfaces.
-  - Use strict mode in TypeScript for better type safety.
+Organize code by feature/domain (e.g., features/auth, features/dashboard).
 
-  Syntax and Formatting
-  - Use the "function" keyword for pure functions.
-  - Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
-  - Use declarative JSX.
-  - Use Prettier for consistent code formatting.
+⚙️ TypeScript
+Enable strict mode in tsconfig.json.
 
- The design and style of this storyboard layout can be described as modern, clean, and visually structured. Here's a breakdown of the key elements:
+Use interfaces over type aliases.
 
-🔹 Design Style
-Minimalist UI: The interface uses a lot of white space, soft shadows, and clean typography, giving it a modern, uncluttered look.
+Avoid enums; use object maps or unions.
 
-Modular Grid Layout: The storyboard follows a structured grid, organizing content into cards with clear flow direction indicated by arrows.
+Always type component props with interfaces.
 
-Neutral Color Palette: Primarily black, white, and grey tones are used, with subtle accent colors (e.g. light blue for links, light orange for dialogue).
+⚛️ React & Next.js
+Use functional components and hooks only.
 
-Soft Rounded Elements: Rounded card edges and icons contribute to a friendly, professional feel.
+Use React Server Components (RSC) where possible.
 
-🔹 Functional Style
-Storyboard Format: Each frame is labeled and numbered (e.g. “1. Driveway”), creating a logical, narrative sequence.
+Prefer derived props over local state.
 
-Visual Hierarchy: Titles are bolded, followed by a card count and a brief description of the shot type and action.
+Use Context + useReducer for global state.
 
-Inline Imagery: Each scene has an image that visually previews the shot—very helpful for both creative direction and production planning.
+Use Zustand for scalable state management.
 
-Shot Type Labels: Terms like Track, POV shot, Stationary Close-up, and Aerial shot help communicate cinematographic techniques.
+Use react-query or SWR for client-side data fetching.
 
-🔹 Platform Aesthetic
-This appears to be created in a collaborative digital workspace like Milanote or Notion, optimized for:
+Use Next.js data fetching (e.g., generateStaticParams, getServerSideProps) as needed.
 
-Team collaboration (shared boards, avatars of editors),
+🧼 Code Style
+Use Prettier and ESLint with TypeScript and Next.js presets.
 
-Visual planning (drag-and-drop layout),
+Use the function keyword for utility functions.
 
-Content-rich storytelling (cards with images, text, and flowlines).
+Use concise conditional rendering syntax.
 
-🔹 Use-case Description
-A fitting way to describe the overall design would be:
+Use descriptive variable names (e.g., isLoading, hasError, shouldRender).
 
+Avoid unnecessary curly braces or verbose JSX.
+
+🎨 UI & Design
+Minimalist aesthetic: white space, clean typography, soft shadows, neutral colors.
+
+Use Tailwind CSS or Shadcn/UI for styling.
+
+Use responsive grid and flex layouts (grid, flex, gap-*).
+
+Use large rounded corners (rounded-xl, rounded-2xl).
+
+Keep components modular and reusable.
+
+⚡ Performance
+Use dynamic imports and React.lazy for non-critical components.
+
+Optimize images with next/image.
+
+Use memoization: memo(), useMemo, useCallback.
+
+Load fonts using next/font.
+
+🧪 Testing
+Use Jest for unit tests.
+
+Use React Testing Library for component testing.
+
+Use Cypress or Playwright for E2E testing.
+
+Prefer snapshot tests for static presentational components only.
+
+🔍 SEO & Accessibility
+Use Next.js metadata (App Router) or <Head> (Pages Router).
+
+Use semantic HTML tags (<main>, <section>, etc.).
+
+Ensure keyboard navigation and screen reader compatibility.
+
+Generate sitemaps with next-sitemap.
+
+🧠 Developer Best Practices
+Use absolute imports (@/components/...) via tsconfig.json.
+
+Keep components small and focused on a single responsibility.
+
+Stick to conventions over custom abstractions.
+
+Modularize logic and UI layers; avoid repetition.
 “A clean, modular storyboard layout designed for film production teams, blending visual previews with concise cinematographic direction. The minimalist aesthetic supports clarity, while the flow-based card system enables intuitive storytelling and collaborative editing.”
 
   Safe Area Management

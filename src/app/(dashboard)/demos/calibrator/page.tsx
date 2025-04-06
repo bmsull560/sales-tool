@@ -1,6 +1,6 @@
 'use client';
 
-import '@/styles/globals.css';
+import '@/app/globals.css';
 import { useState, useEffect } from "react";
 import DemoCalibrator from "@/components/demo-prep/DemoCalibrator";
 import { motion } from "framer-motion";
