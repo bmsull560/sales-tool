@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardBase, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card-base';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Plus, Calculator, FileText, BarChart4, Download } from 'lucide-react';
+import { Heading, Text, Label } from '@/components/ui/typography';
+import { DemoSection } from '@/components/ui/demo-section';
 
 export default function ROIPage() {
   const [assumptions, setAssumptions] = useState({
@@ -92,14 +93,10 @@ export default function ROIPage() {
   const roiMetrics = calculateROI();
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">ROI & Business Case</h1>
-          <p className="text-slate-500 mt-1">
-            Calculate ROI and build compelling business cases for your solutions
-          </p>
-        </div>
+    <DemoSection 
+      title="ROI & Business Case"
+      subtitle="Calculate ROI and build compelling business cases for your solutions"
+      action={
         <div className="flex gap-2">
           <Button variant="outline" className="gap-1">
             <Download size={16} />
@@ -110,8 +107,8 @@ export default function ROIPage() {
             <span>New Business Case</span>
           </Button>
         </div>
-      </div>
-
+      }
+    >
       <Tabs defaultValue="calculator" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="calculator">
@@ -131,7 +128,7 @@ export default function ROIPage() {
         <TabsContent value="calculator" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Assumptions */}
-            <Card className="md:col-span-1">
+            <CardBase className="md:col-span-1">
               <CardHeader>
                 <CardTitle>Assumptions</CardTitle>
                 <CardDescription>
@@ -140,11 +137,10 @@ export default function ROIPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="averageOrderValue">Average Order Value</Label>
+                  <Label>Average Order Value</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                     <Input
-                      id="averageOrderValue"
                       type="number"
                       className="pl-7"
                       value={assumptions.averageOrderValue}
@@ -154,9 +150,8 @@ export default function ROIPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="monthlyOrders">Monthly Orders</Label>
+                  <Label>Monthly Orders</Label>
                   <Input
-                    id="monthlyOrders"
                     type="number"
                     value={assumptions.monthlyOrders}
                     onChange={(e) => handleInputChange('monthlyOrders', e.target.value)}
@@ -164,10 +159,9 @@ export default function ROIPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="conversionRateIncrease">Conversion Rate Increase (%)</Label>
+                  <Label>Conversion Rate Increase (%)</Label>
                   <div className="relative">
                     <Input
-                      id="conversionRateIncrease"
                       type="number"
                       className="pr-7"
                       value={assumptions.conversionRateIncrease}
@@ -178,10 +172,9 @@ export default function ROIPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="operationalCostReduction">Operational Cost Reduction (%)</Label>
+                  <Label>Operational Cost Reduction (%)</Label>
                   <div className="relative">
                     <Input
-                      id="operationalCostReduction"
                       type="number"
                       className="pr-7"
                       value={assumptions.operationalCostReduction}
@@ -192,11 +185,10 @@ export default function ROIPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="implementationCost">Implementation Cost</Label>
+                  <Label>Implementation Cost</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                     <Input
-                      id="implementationCost"
                       type="number"
                       className="pl-7"
                       value={assumptions.implementationCost}
@@ -206,11 +198,10 @@ export default function ROIPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="annualSubscription">Annual Subscription</Label>
+                  <Label>Annual Subscription</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                     <Input
-                      id="annualSubscription"
                       type="number"
                       className="pl-7"
                       value={assumptions.annualSubscription}
@@ -220,129 +211,105 @@ export default function ROIPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="timeToImplementMonths">Implementation Time (months)</Label>
+                  <Label>Implementation Time (months)</Label>
                   <Input
-                    id="timeToImplementMonths"
                     type="number"
                     value={assumptions.timeToImplementMonths}
                     onChange={(e) => handleInputChange('timeToImplementMonths', e.target.value)}
                   />
                 </div>
               </CardContent>
-            </Card>
+            </CardBase>
 
-            {/* Results */}
-            <Card className="md:col-span-2">
+            {/* ROI Analysis */}
+            <CardBase className="md:col-span-2">
               <CardHeader>
                 <CardTitle>ROI Analysis</CardTitle>
                 <CardDescription>
                   Based on your assumptions
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Key Metrics */}
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4">Key Metrics</h3>
-                      <div className="space-y-4">
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                          <div className="text-sm text-blue-700 font-medium">First Year ROI</div>
-                          <div className="text-2xl font-bold text-blue-800">{roiMetrics.firstYearROI}</div>
-                        </div>
-                        
-                        <div className="bg-green-50 p-4 rounded-lg">
-                          <div className="text-sm text-green-700 font-medium">3-Year ROI</div>
-                          <div className="text-2xl font-bold text-green-800">{roiMetrics.threeYearROI}</div>
-                        </div>
-                        
-                        <div className="bg-purple-50 p-4 rounded-lg">
-                          <div className="text-sm text-purple-700 font-medium">Payback Period</div>
-                          <div className="text-2xl font-bold text-purple-800">{roiMetrics.paybackPeriod}</div>
-                        </div>
-                      </div>
+              <CardContent className="space-y-6">
+                <div>
+                  <Heading size="sm" className="mb-4">Key Metrics</Heading>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-slate-50 p-4 rounded-lg">
+                      <Text size="sm" className="text-slate-500">First Year ROI</Text>
+                      <Heading size="lg" className="text-slate-900">{roiMetrics.firstYearROI}</Heading>
+                    </div>
+                    <div className="bg-slate-50 p-4 rounded-lg">
+                      <Text size="sm" className="text-slate-500">3-Year ROI</Text>
+                      <Heading size="lg" className="text-slate-900">{roiMetrics.threeYearROI}</Heading>
+                    </div>
+                    <div className="bg-slate-50 p-4 rounded-lg">
+                      <Text size="sm" className="text-slate-500">Payback Period</Text>
+                      <Heading size="lg" className="text-slate-900">{roiMetrics.paybackPeriod}</Heading>
                     </div>
                   </div>
+                </div>
 
-                  {/* Detailed Breakdown */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Detailed Breakdown</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center pb-2 border-b">
-                        <span className="text-sm text-gray-600">Annual Revenue (Before)</span>
-                        <span className="font-medium">{roiMetrics.annualRevenueBefore}</span>
-                      </div>
-                      <div className="flex justify-between items-center pb-2 border-b">
-                        <span className="text-sm text-gray-600">Annual Revenue (After)</span>
-                        <span className="font-medium">{roiMetrics.annualRevenueAfter}</span>
-                      </div>
-                      <div className="flex justify-between items-center pb-2 border-b">
-                        <span className="text-sm text-gray-600">Revenue Increase</span>
-                        <span className="font-medium text-green-600">{roiMetrics.revenueIncrease}</span>
-                      </div>
-                      <div className="flex justify-between items-center pb-2 border-b">
-                        <span className="text-sm text-gray-600">Operational Savings</span>
-                        <span className="font-medium text-green-600">{roiMetrics.operationalSavings}</span>
-                      </div>
-                      <div className="flex justify-between items-center pb-2 border-b">
-                        <span className="text-sm text-gray-600">Total Annual Benefit</span>
-                        <span className="font-medium text-green-600">{roiMetrics.totalAnnualBenefit}</span>
-                      </div>
-                      <div className="flex justify-between items-center pb-2 border-b">
-                        <span className="text-sm text-gray-600">First Year Cost</span>
-                        <span className="font-medium text-red-600">{roiMetrics.totalFirstYearCost}</span>
-                      </div>
+                <div>
+                  <Heading size="sm" className="mb-4">Detailed Breakdown</Heading>
+                  <div className="space-y-3">
+                    <div className="flex justify-between border-b pb-2">
+                      <Text>Annual Revenue (Before)</Text>
+                      <Text className="font-medium">{roiMetrics.annualRevenueBefore}</Text>
+                    </div>
+                    <div className="flex justify-between border-b pb-2">
+                      <Text>Annual Revenue (After)</Text>
+                      <Text className="font-medium">{roiMetrics.annualRevenueAfter}</Text>
+                    </div>
+                    <div className="flex justify-between border-b pb-2">
+                      <Text>Revenue Increase</Text>
+                      <Text className="font-medium text-green-600">{roiMetrics.revenueIncrease}</Text>
+                    </div>
+                    <div className="flex justify-between border-b pb-2">
+                      <Text>Operational Savings</Text>
+                      <Text className="font-medium text-green-600">{roiMetrics.operationalSavings}</Text>
+                    </div>
+                    <div className="flex justify-between border-b pb-2">
+                      <Text>Total Annual Benefit</Text>
+                      <Text className="font-medium text-green-600">{roiMetrics.totalAnnualBenefit}</Text>
+                    </div>
+                    <div className="flex justify-between border-b pb-2">
+                      <Text>First Year Cost</Text>
+                      <Text className="font-medium text-red-600">{roiMetrics.totalFirstYearCost}</Text>
                     </div>
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </CardBase>
           </div>
         </TabsContent>
 
-        <TabsContent value="business-case">
-          <Card>
+        <TabsContent value="business-case" className="space-y-4">
+          <CardBase className="w-full">
             <CardHeader>
               <CardTitle>Business Case Builder</CardTitle>
               <CardDescription>
-                Create comprehensive business cases with executive summaries, value propositions, and financial analysis
+                Create a complete business case document based on ROI analysis
               </CardDescription>
             </CardHeader>
-            <CardContent className="h-[400px] flex items-center justify-center">
-              <div className="text-center">
-                <FileText size={48} className="mx-auto text-gray-300 mb-4" />
-                <h3 className="text-lg font-medium mb-2">No Business Cases Yet</h3>
-                <p className="text-gray-500 mb-4">Create your first business case to get started</p>
-                <Button>
-                  <Plus size={16} className="mr-2" />
-                  Create Business Case
-                </Button>
-              </div>
+            <CardContent>
+              <Text>Business case content will appear here. Select the ROI Calculator tab to update assumptions.</Text>
             </CardContent>
-          </Card>
+          </CardBase>
         </TabsContent>
 
-        <TabsContent value="charts">
-          <Card>
+        <TabsContent value="charts" className="space-y-4">
+          <CardBase className="w-full">
             <CardHeader>
-              <CardTitle>ROI Visualizations</CardTitle>
+              <CardTitle>ROI Visualization</CardTitle>
               <CardDescription>
-                Visual charts and graphs to illustrate ROI and financial impact
+                Visual representation of your ROI analysis
               </CardDescription>
             </CardHeader>
-            <CardContent className="h-[400px] flex items-center justify-center">
-              <div className="text-center">
-                <BarChart4 size={48} className="mx-auto text-gray-300 mb-4" />
-                <h3 className="text-lg font-medium mb-2">Charts Coming Soon</h3>
-                <p className="text-gray-500 mb-4">We're working on adding interactive charts and visualizations</p>
-                <Button variant="outline">
-                  Request Early Access
-                </Button>
-              </div>
+            <CardContent>
+              <Text>Charts and visualization content will appear here.</Text>
             </CardContent>
-          </Card>
+          </CardBase>
         </TabsContent>
       </Tabs>
-    </div>
+    </DemoSection>
   );
 }

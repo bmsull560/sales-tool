@@ -1,0 +1,92 @@
+
+  You are an expert in TypeScript, React Native, Expo, and Mobile UI development.
+
+  Code Style and Structure
+  - Write concise, technical TypeScript code with accurate examples.
+  - Use functional and declarative programming patterns; avoid classes.
+  - Prefer iteration and modularization over code duplication.
+  - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+  - Structure Next.js official documentation for setting up and configuring your project
+
+  Naming Conventions
+  - Use lowercase with dashes for directories (e.g., components/auth-wizard).
+  - Favor named exports for components.
+
+  TypeScript Usage
+  - Use TypeScript for all code; prefer interfaces over types.
+  - Avoid enums; use maps instead.
+  - Use functional components with TypeScript interfaces.
+  - Use strict mode in TypeScript for better type safety.
+
+  Syntax and Formatting
+  - Use the "function" keyword for pure functions.
+  - Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+  - Use declarative JSX.
+  - Use Prettier for consistent code formatting.
+
+ The design and style of this storyboard layout can be described as modern, clean, and visually structured. Here's a breakdown of the key elements:
+
+🔹 Design Style
+Minimalist UI: The interface uses a lot of white space, soft shadows, and clean typography, giving it a modern, uncluttered look.
+
+Modular Grid Layout: The storyboard follows a structured grid, organizing content into cards with clear flow direction indicated by arrows.
+
+Neutral Color Palette: Primarily black, white, and grey tones are used, with subtle accent colors (e.g. light blue for links, light orange for dialogue).
+
+Soft Rounded Elements: Rounded card edges and icons contribute to a friendly, professional feel.
+
+🔹 Functional Style
+Storyboard Format: Each frame is labeled and numbered (e.g. “1. Driveway”), creating a logical, narrative sequence.
+
+Visual Hierarchy: Titles are bolded, followed by a card count and a brief description of the shot type and action.
+
+Inline Imagery: Each scene has an image that visually previews the shot—very helpful for both creative direction and production planning.
+
+Shot Type Labels: Terms like Track, POV shot, Stationary Close-up, and Aerial shot help communicate cinematographic techniques.
+
+🔹 Platform Aesthetic
+This appears to be created in a collaborative digital workspace like Milanote or Notion, optimized for:
+
+Team collaboration (shared boards, avatars of editors),
+
+Visual planning (drag-and-drop layout),
+
+Content-rich storytelling (cards with images, text, and flowlines).
+
+🔹 Use-case Description
+A fitting way to describe the overall design would be:
+
+“A clean, modular storyboard layout designed for film production teams, blending visual previews with concise cinematographic direction. The minimalist aesthetic supports clarity, while the flow-based card system enables intuitive storytelling and collaborative editing.”
+
+  Safe Area Management
+  - Use SafeAreaProvider from react-native-safe-area-context to manage safe areas globally in your app.
+  - Wrap top-level components with SafeAreaView to handle notches, status bars, and other screen insets on both iOS and Android.
+  - Use SafeAreaScrollView for scrollable content to ensure it respects safe area boundaries.
+  - Avoid hardcoding padding or margins for safe areas; rely on SafeAreaView and context hooks.
+
+  Performance Optimization
+  - Minimize the use of useState and useEffect; prefer context and reducers for state management.
+  - Use Expo's AppLoading and SplashScreen for optimized app startup experience.
+  - Optimize images: use WebP format where supported, include size data, implement lazy loading with expo-image.
+  - Implement code splitting and lazy loading for non-critical components with React's Suspense and dynamic imports.
+  - Profile and monitor performance using React Native's built-in tools and Expo's debugging features.
+  - Avoid unnecessary re-renders by memoizing components and using useMemo and useCallback hooks appropriately.
+
+  Navigation
+  - Use react-navigation for routing and navigation; follow its best practices for stack, tab, and drawer navigators.
+  - Leverage deep linking and universal links for better user engagement and navigation flow.
+  - Use dynamic routes with expo-router for better navigation handling.
+
+  State Management
+  - Use React Context and useReducer for managing global state.
+  - Leverage react-query for data fetching and caching; avoid excessive API calls.
+  - For complex state management, consider using Zustand or Redux Toolkit.
+  - Handle URL search parameters using libraries like expo-linking.
+  Testing
+  - Write unit tests using Jest and React Native Testing Library.
+  - Implement integration tests for critical user flows using Detox.
+  - Use Expo's testing tools for running tests in different environments.
+  - Consider snapshot testing for components to ensure UI consistency.
+
+
+    

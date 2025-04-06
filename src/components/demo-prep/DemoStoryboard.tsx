@@ -1,55 +1,64 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { 
   Clock, 
   Presentation, 
   Plus, 
   X, 
-  ChevronUp, 
-  ChevronDown, 
-  Move,
-  ScreenShare,
-  MessageSquare,
-  LineChart,
-  Zap
+  ArrowRight,
+  Image as ImageIcon,
+  Edit,
+  Save
 } from 'lucide-react';
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import Image from "next/image";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Heading, Text, Label, KeyPoint } from "@/components/ui/typography";
+import { FormField } from "@/components/ui/form-field";
+import { IconButton, ActionButton } from "@/components/ui/icon-button";
+import { DemoSection, DemoEmptyState } from "@/components/ui/demo-section";
+import { DemoCard } from "@/components/ui/demo-card";
 
+// Types and constants
 interface StoryboardStep {
   id: string;
   title: string;
-  type: 'presentation' | 'demo' | 'discussion' | 'data' | 'feature';
+  type: StepType;
   duration: number; // in minutes
   description: string;
   keyPoints: string[];
+  imageUrl?: string; // URL for the step thumbnail
   expanded: boolean;
 }
 
-const getStepIcon = (type: StoryboardStep['type']) => {
+type StepType = 'presentation' | 'demo' | 'discussion' | 'data' | 'feature';
+
+const getStepTypeLabel = (type: StepType) => {
   switch (type) {
-    case 'presentation': return <Presentation className="h-5 w-5 text-blue-400" />;
-    case 'demo': return <ScreenShare className="h-5 w-5 text-green-400" />;
-    case 'discussion': return <MessageSquare className="h-5 w-5 text-yellow-400" />;
-    case 'data': return <LineChart className="h-5 w-5 text-purple-400" />;
-    case 'feature': return <Zap className="h-5 w-5 text-orange-400" />;
-    default: return <Presentation className="h-5 w-5" />;
+    case 'presentation': return 'Slide Deck';
+    case 'demo': return 'Live Demo';
+    case 'discussion': return 'Interactive Discussion';
+    case 'data': return 'Data Visualization';
+    case 'feature': return 'Feature Highlight';
+    default: return 'Presentation';
   }
 };
 
-const getStepColor = (type: StoryboardStep['type']) => {
+// Get the accent color for each step type
+const getStepAccentColor = (type: StepType) => {
   switch (type) {
-    case 'presentation': return 'border-l-blue-500';
-    case 'demo': return 'border-l-green-500';
-    case 'discussion': return 'border-l-yellow-500';
-    case 'data': return 'border-l-purple-500';
-    case 'feature': return 'border-l-orange-500';
-    default: return 'border-l-gray-500';
+    case 'presentation': return '#60a5fa'; // blue-400
+    case 'demo': return '#4ade80'; // green-400
+    case 'discussion': return '#facc15'; // yellow-400
+    case 'data': return '#c084fc'; // purple-400
+    case 'feature': return '#fb923c'; // orange-400
+    default: return '#60a5fa';
   }
 };
 
@@ -65,6 +74,7 @@ const initialSteps: StoryboardStep[] = [
       'Agenda overview',
       'Expected outcomes'
     ],
+    imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=500&q=80',
     expanded: false
   },
   {
@@ -78,6 +88,7 @@ const initialSteps: StoryboardStep[] = [
       'Business impact',
       'Desired outcomes'
     ],
+    imageUrl: 'https://images.unsplash.com/photo-1529119368496-2dfda6ec2804?auto=format&fit=crop&w=500&q=80',
     expanded: false
   },
   {
@@ -91,6 +102,7 @@ const initialSteps: StoryboardStep[] = [
       'Core workflows',
       'Admin capabilities'
     ],
+    imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=500&q=80',
     expanded: false
   },
   {
@@ -104,254 +116,616 @@ const initialSteps: StoryboardStep[] = [
       'Efficiency improvements',
       'Implementation timeline'
     ],
+    imageUrl: 'https://images.unsplash.com/photo-1543286386-713bdd548da4?auto=format&fit=crop&w=500&q=80',
     expanded: false
   }
 ];
 
 export default function DemoStoryboard() {
   const [steps, setSteps] = useState<StoryboardStep[]>(initialSteps);
+  const [selectedStep, setSelectedStep] = useState<StoryboardStep | null>(null);
   const [isAddingStep, setIsAddingStep] = useState(false);
   const [newStep, setNewStep] = useState<Partial<StoryboardStep>>({
     title: '',
     type: 'presentation',
     duration: 5,
     description: '',
-    keyPoints: [''],
-    expanded: true
+    keyPoints: [],
+    expanded: false
   });
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const totalDuration = steps.reduce((total, step) => total + step.duration, 0);
+  const totalDuration = useMemo(() => 
+    steps.reduce((total, step) => total + step.duration, 0),
+    [steps]
+  );
 
-  const toggleExpand = (id: string) => {
-    setSteps(steps.map(step => 
-      step.id === id ? { ...step, expanded: !step.expanded } : step
-    ));
-  };
+  useEffect(() => {
+    if (!isAddingStep) {
+      setNewStep({
+        id: '',
+        title: '',
+        type: 'presentation',
+        duration: 5,
+        description: '',
+        keyPoints: [],
+        expanded: false
+      });
+    }
+  }, [isAddingStep]);
 
   const handleAddStep = () => {
     if (!newStep.title) return;
-    
-    const step: StoryboardStep = {
-      id: Date.now().toString(),
-      title: newStep.title || 'New Step',
+
+    const newStepId = `step-${Date.now()}`;
+    const finalizedStep: StoryboardStep = {
+      id: newStepId,
+      title: newStep.title,
       type: newStep.type || 'presentation',
       duration: newStep.duration || 5,
       description: newStep.description || '',
-      keyPoints: newStep.keyPoints?.filter(p => p.trim() !== '') || [],
-      expanded: false
+      keyPoints: newStep.keyPoints || [],
+      expanded: false,
+      imageUrl: newStep.imageUrl || undefined
     };
-    
-    setSteps([...steps, step]);
+
+    setSteps([...steps, finalizedStep]);
     setIsAddingStep(false);
-    setNewStep({
-      title: '',
-      type: 'presentation',
-      duration: 5,
-      description: '',
-      keyPoints: [''],
-      expanded: true
-    });
   };
 
   const removeStep = (id: string) => {
     setSteps(steps.filter(step => step.id !== id));
   };
 
-  const addKeyPoint = (stepId: string) => {
+  const addKeyPoint = () => {
+    if (!selectedStep) return;
+    
     setSteps(steps.map(step => 
-      step.id === stepId ? { ...step, keyPoints: [...step.keyPoints, ''] } : step
+      step.id === selectedStep.id ? { 
+        ...step, 
+        keyPoints: [...step.keyPoints, ''] 
+      } : step
     ));
+    
+    setSelectedStep({
+      ...selectedStep,
+      keyPoints: [...selectedStep.keyPoints, '']
+    });
   };
 
-  const updateKeyPoint = (stepId: string, index: number, value: string) => {
-    setSteps(steps.map(step => {
-      if (step.id === stepId) {
-        const newKeyPoints = [...step.keyPoints];
-        newKeyPoints[index] = value;
-        return { ...step, keyPoints: newKeyPoints };
-      }
-      return step;
-    }));
+  const updateKeyPoint = (index: number, value: string) => {
+    if (!selectedStep) return;
+    
+    const updatedKeyPoints = [...selectedStep.keyPoints];
+    updatedKeyPoints[index] = value;
+    
+    setSteps(steps.map(step => 
+      step.id === selectedStep.id ? { 
+        ...step, 
+        keyPoints: updatedKeyPoints 
+      } : step
+    ));
+    
+    setSelectedStep({
+      ...selectedStep,
+      keyPoints: updatedKeyPoints
+    });
   };
 
-  const removeKeyPoint = (stepId: string, index: number) => {
-    setSteps(steps.map(step => {
-      if (step.id === stepId) {
-        const newKeyPoints = [...step.keyPoints];
-        newKeyPoints.splice(index, 1);
-        return { ...step, keyPoints: newKeyPoints };
-      }
-      return step;
-    }));
+  const removeKeyPoint = (index: number) => {
+    if (!selectedStep) return;
+    
+    const updatedKeyPoints = [...selectedStep.keyPoints];
+    updatedKeyPoints.splice(index, 1);
+    
+    setSteps(steps.map(step => 
+      step.id === selectedStep.id ? { 
+        ...step, 
+        keyPoints: updatedKeyPoints 
+      } : step
+    ));
+    
+    setSelectedStep({
+      ...selectedStep,
+      keyPoints: updatedKeyPoints
+    });
+  };
+
+  const updateSelectedStep = (field: keyof StoryboardStep, value: string | number | string[] | boolean) => {
+    if (!selectedStep) return;
+    
+    setSteps(steps.map(step => 
+      step.id === selectedStep.id ? { 
+        ...step, 
+        [field]: value 
+      } : step
+    ));
+    
+    setSelectedStep({
+      ...selectedStep,
+      [field]: value
+    });
+  };
+
+  const handleSaveStep = () => {
+    setSelectedStep(null);
   };
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <Presentation className="h-6 w-6" />
-          <h2 className="text-2xl font-bold">Demo Storyboard</h2>
-        </div>
-        <div className="flex items-center">
-          <Clock className="h-5 w-5 mr-2 text-slate-400" />
-          <span className="text-lg">Total: {totalDuration} minutes</span>
-          <Button 
-            onClick={() => setIsAddingStep(true)} 
-            className="ml-4 bg-[#39FF14] hover:bg-[#32E512] text-black"
-          >
-            <Plus className="h-4 w-4 mr-1" /> Add Step
-          </Button>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {steps.map((step, index) => (
-          <div 
-            key={step.id} 
-            className={`bg-slate-800 border-l-4 ${getStepColor(step.type)} rounded-lg overflow-hidden`}
-          >
-            <div 
-              className="p-4 flex items-center cursor-pointer"
-              onClick={() => toggleExpand(step.id)}
-            >
-              <div className="flex items-center justify-center w-8 h-8 bg-slate-700 rounded-full mr-3">
-                {index + 1}
-              </div>
-              <div className="flex items-center mr-3">
-                {getStepIcon(step.type)}
-              </div>
-              <div className="flex-grow">
-                <h3 className="font-medium">{step.title}</h3>
-                <p className="text-sm text-slate-400">{step.description}</p>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Badge variant="outline" className="flex items-center">
-                  <Clock className="h-3 w-3 mr-1" />
-                  {step.duration}m
-                </Badge>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeStep(step.id);
-                  }}
-                >
-                  <X className="h-4 w-4 text-slate-400 hover:text-red-400" />
-                </Button>
-                {step.expanded ? 
-                  <ChevronUp className="h-5 w-5 text-slate-400" /> : 
-                  <ChevronDown className="h-5 w-5 text-slate-400" />
-                }
-              </div>
+    <DemoSection
+      title="Demo Storyboard"
+      subtitle="Create and arrange your demo flow sequence"
+      contentClassName="w-full max-w-full overflow-hidden"
+    >
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 p-6 mb-8 shadow-md">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <Heading as="h3" size="lg" color="primary" className="mb-1">Visual Demo Flow</Heading>
+            <Text color="secondary" size="sm">
+              Create a step-by-step sequence to guide your product demonstration.
+            </Text>
+          </div>
+          
+          <div className="flex flex-row items-center gap-2">
+            <div className="bg-black/30 px-3 py-1.5 rounded-md flex items-center gap-2">
+              <Clock className="text-[#39FF14] h-4 w-4" />
+              <Text size="sm" color="primary">
+                Total: <strong>{totalDuration} min</strong>
+              </Text>
             </div>
             
-            {step.expanded && (
-              <div className="p-4 pt-0 border-t border-slate-700 mt-2">
-                <div className="mb-4">
-                  <div className="font-medium mb-2">KEY POINTS</div>
-                  <div className="space-y-2">
-                    {step.keyPoints.map((point, pointIndex) => (
-                      <div key={pointIndex} className="flex items-center">
-                        <div className="w-2 h-2 bg-[#39FF14] rounded-full mr-2"></div>
-                        <div className="flex-grow">
-                          <Input 
-                            value={point} 
-                            onChange={(e) => updateKeyPoint(step.id, pointIndex, e.target.value)}
-                            className="bg-slate-700 border-slate-600"
-                          />
-                        </div>
-                        <Button 
-                          variant="ghost" 
+            <ActionButton 
+              icon={<Plus size={16} />}
+              variant="accent"
+              onClick={() => setIsAddingStep(true)}
+            >
+              Add Step
+            </ActionButton>
+          </div>
+        </div>
+        
+        <div className="absolute top-0 left-0 w-full h-full opacity-5">
+          <div className="absolute right-0 bottom-0 w-64 h-64 transform translate-x-1/4 translate-y-1/4">
+            <div className="w-full h-full rounded-full bg-[#39FF14] filter blur-3xl"></div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Storyboard Header */}
+      <div className="flex items-center pl-3 mb-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+        <div className="flex-1">Storyboard Sequence</div>
+        <div className="w-24 text-center">Duration</div>
+        <div className="w-24 text-center">Type</div>
+        <div className="w-20"></div>
+      </div>
+      
+      {/* Storyboard Horizontal Flow */}
+      <div 
+        ref={scrollContainerRef}
+        className="w-full overflow-x-auto pb-6 hide-scrollbar rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50"
+      >
+        <div className="flex p-6 min-w-max">
+          {steps.map((step, index) => (
+            <div key={step.id} className="flex items-start">
+              <DemoCard
+                accentColor={getStepAccentColor(step.type)}
+                animateEntry
+                index={index}
+                className="w-[260px]"
+              >
+                <div className="relative">
+                  <div className="absolute top-3 left-3 z-10 bg-white dark:bg-slate-800 shadow-sm rounded-md py-1 px-2">
+                    <span className="font-bold text-lg">{index + 1}.</span>
+                    <span className="text-sm text-slate-500 dark:text-slate-400 ml-1">{step.title}</span>
+                  </div>
+                  
+                  {step.imageUrl ? (
+                    <div className="h-[150px] w-full overflow-hidden relative">
+                      <Image 
+                        src={step.imageUrl} 
+                        alt={step.title}
+                        fill
+                        className="object-cover transition-transform hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 400px"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-[150px] w-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                      <ImageIcon className="h-10 w-10 text-slate-300 dark:text-slate-700" />
+                    </div>
+                  )}
+                </div>
+                
+                <CardContent className="p-3">
+                  <div className="mb-2">
+                    <Label>{getStepTypeLabel(step.type)}</Label>
+                    <Text color="secondary" size="sm" className="line-clamp-2 mt-1">
+                      {step.description}
+                    </Text>
+                  </div>
+                  
+                  <div className="mt-3 space-y-1">
+                    {step.keyPoints.slice(0, 2).map((point, idx) => (
+                      <KeyPoint key={idx}>
+                        {point}
+                      </KeyPoint>
+                    ))}
+                    
+                    {step.keyPoints.length > 2 && (
+                      <Text size="xs" color="muted" className="mt-1 pl-2.5">
+                        +{step.keyPoints.length - 2} more
+                      </Text>
+                    )}
+                  </div>
+                  
+                  <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center text-xs">
+                      <Clock className="h-3 w-3 mr-1 text-slate-400" />
+                      <span>{step.duration} min</span>
+                    </div>
+                    
+                    <div className="flex items-center space-x-1">
+                      <IconButton
+                        icon={<Edit className="h-3.5 w-3.5" />}
+                        variant="ghost"
+                        size="sm"
+                        rounded
+                        onClick={() => setSelectedStep(step)}
+                        label="Edit step"
+                      />
+                      <IconButton
+                        icon={<X className="h-3.5 w-3.5" />}
+                        variant="ghost"
+                        size="sm"
+                        rounded
+                        onClick={() => removeStep(step.id)}
+                        label="Remove step"
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </DemoCard>
+              
+              {index < steps.length - 1 && (
+                <div className="mx-3 flex items-center h-[150px]">
+                  <div className="w-12 flex items-center justify-center">
+                    <div className="w-10 h-[2px] bg-slate-200 dark:bg-slate-700 relative">
+                      <ArrowRight className="h-4 w-4 text-slate-300 dark:text-slate-700 absolute -right-2 -top-[7px]" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {steps.length === 0 && (
+        <DemoEmptyState 
+          title="No Demo Steps Yet"
+          description="Create your first demo step to build a visual sequence for your presentation."
+          icon={<Presentation size={48} />}
+          action={
+            <ActionButton 
+              icon={<Plus size={16} />} 
+              variant="accent"
+              onClick={() => setIsAddingStep(true)}
+            >
+              Add First Step
+            </ActionButton>
+          }
+        />
+      )}
+      
+      {/* Step Detail Dialog */}
+      {selectedStep && (
+        <Dialog open={!!selectedStep} onOpenChange={(open) => !open && setSelectedStep(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <span>Edit Demo Step</span>
+                <span className="text-sm text-slate-500 font-normal">({selectedStep.id})</span>
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+              {/* Left Column - Main Details */}
+              <div className="md:col-span-2 space-y-4">
+                <FormField label="Step Title" htmlFor="title">
+                  <Input
+                    id="title"
+                    value={selectedStep.title}
+                    onChange={(e) => updateSelectedStep('title', e.target.value)}
+                    placeholder="Enter step title"
+                    className="w-full"
+                  />
+                </FormField>
+                
+                <FormField 
+                  label="Description" 
+                  htmlFor="description"
+                  description="Describe what happens in this step of the demo"
+                >
+                  <Textarea
+                    id="description"
+                    value={selectedStep.description}
+                    onChange={(e) => updateSelectedStep('description', e.target.value)}
+                    placeholder="Describe what happens in this step"
+                    rows={3}
+                    className="w-full resize-none"
+                  />
+                </FormField>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">
+                      Key Points
+                    </label>
+                    <IconButton 
+                      icon={<Plus className="h-3.5 w-3.5" />}
+                      size="sm"
+                      variant="outline"
+                      onClick={addKeyPoint}
+                      label="Add key point"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
+                    {selectedStep.keyPoints.map((point, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <Input
+                          value={point}
+                          onChange={(e) => updateKeyPoint(index, e.target.value)}
+                          placeholder="Enter key point"
+                          className="flex-1"
+                        />
+                        <IconButton
+                          icon={<X className="h-3.5 w-3.5" />}
+                          variant="ghost"
                           size="sm"
-                          onClick={() => removeKeyPoint(step.id, pointIndex)}
-                          className="ml-1"
-                        >
-                          <X className="h-4 w-4 text-slate-400 hover:text-red-400" />
-                        </Button>
+                          rounded
+                          onClick={() => removeKeyPoint(index)}
+                          label="Remove key point"
+                        />
                       </div>
                     ))}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => addKeyPoint(step.id)}
-                      className="mt-2"
-                    >
-                      <Plus className="h-4 w-4 mr-1" /> Add Point
-                    </Button>
+                    
+                    {selectedStep.keyPoints.length === 0 && (
+                      <div className="text-center py-4 text-sm text-slate-500 bg-slate-50 dark:bg-slate-900 rounded-md">
+                        No key points added yet. Add some to highlight important details.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-        ))}
-
-        {isAddingStep && (
-          <div className="bg-slate-800 border-l-4 border-l-[#39FF14] rounded-lg p-4">
-            <h3 className="font-medium mb-3">Add New Step</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm mb-1">Title</label>
-                <Input 
-                  value={newStep.title} 
-                  onChange={(e) => setNewStep({...newStep, title: e.target.value})}
-                  placeholder="Step title"
-                  className="bg-slate-700 border-slate-600"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm mb-1">Type</label>
-                  <select 
-                    value={newStep.type} 
-                    onChange={(e) => setNewStep({...newStep, type: e.target.value as StoryboardStep['type']})}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2"
+              
+              {/* Right Column - Settings */}
+              <div className="space-y-4">
+                <Card className="border-slate-200 dark:border-slate-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">Step Settings</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormField label="Step Type" htmlFor="stepType">
+                      <Select value={selectedStep.type} onValueChange={(value) => updateSelectedStep('type', value as StepType)}>
+                        <SelectTrigger id="stepType" className="w-full">
+                          <SelectValue placeholder="Select step type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="presentation">Slide Deck</SelectItem>
+                          <SelectItem value="demo">Live Demo</SelectItem>
+                          <SelectItem value="discussion">Interactive Discussion</SelectItem>
+                          <SelectItem value="data">Data Visualization</SelectItem>
+                          <SelectItem value="feature">Feature Highlight</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormField>
+                    
+                    <FormField 
+                      label="Duration (minutes)" 
+                      htmlFor="duration"
+                      description="Estimated time for this step in minutes"
+                    >
+                      <Input
+                        id="duration"
+                        type="number"
+                        min="1"
+                        max="60"
+                        value={selectedStep.duration}
+                        onChange={(e) => updateSelectedStep('duration', parseInt(e.target.value) || 1)}
+                        className="w-full"
+                      />
+                    </FormField>
+                    
+                    <FormField 
+                      label="Image URL" 
+                      htmlFor="imageUrl"
+                      description="Add an image URL or leave blank to use a default image"
+                    >
+                      <Input
+                        id="imageUrl"
+                        value={selectedStep.imageUrl || ''}
+                        onChange={(e) => updateSelectedStep('imageUrl', e.target.value)}
+                        placeholder="Enter image URL"
+                        className="w-full"
+                      />
+                    </FormField>
+                  </CardContent>
+                </Card>
+                
+                <div className="flex flex-col gap-2">
+                  <ActionButton
+                    icon={<Save className="h-4 w-4" />}
+                    variant="accent"
+                    onClick={handleSaveStep}
+                    className="w-full"
                   >
-                    <option value="presentation">Presentation</option>
-                    <option value="demo">Demo</option>
-                    <option value="discussion">Discussion</option>
-                    <option value="data">Data/Analysis</option>
-                    <option value="feature">Feature Highlight</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm mb-1">Duration (minutes)</label>
-                  <Input 
-                    type="number" 
-                    value={newStep.duration} 
-                    onChange={(e) => setNewStep({...newStep, duration: parseInt(e.target.value) || 5})}
-                    min={1}
-                    className="bg-slate-700 border-slate-600"
-                  />
+                    Save Changes
+                  </ActionButton>
+                  <Button
+                    variant="outline"
+                    onClick={() => setSelectedStep(null)}
+                    className="w-full"
+                  >
+                    Cancel
+                  </Button>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm mb-1">Description</label>
-                <Textarea 
-                  value={newStep.description} 
-                  onChange={(e) => setNewStep({...newStep, description: e.target.value})}
-                  placeholder="Brief description of this step"
-                  className="bg-slate-700 border-slate-600"
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+      
+      {/* Add Step Dialog */}
+      <Dialog open={isAddingStep} onOpenChange={setIsAddingStep}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add New Demo Step</DialogTitle>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+            {/* Left Column - Main Details */}
+            <div className="md:col-span-2 space-y-4">
+              <FormField 
+                label="Step Title" 
+                htmlFor="newTitle"
+                required
+              >
+                <Input
+                  id="newTitle"
+                  value={newStep.title || ''}
+                  onChange={(e) => setNewStep({...newStep, title: e.target.value})}
+                  placeholder="Enter step title"
+                  className="w-full"
                 />
+              </FormField>
+              
+              <FormField 
+                label="Description" 
+                htmlFor="newDescription"
+                description="Describe what happens in this step of the demo"
+              >
+                <Textarea
+                  id="newDescription"
+                  value={newStep.description || ''}
+                  onChange={(e) => setNewStep({...newStep, description: e.target.value})}
+                  placeholder="Describe what happens in this step"
+                  rows={3}
+                  className="w-full resize-none"
+                />
+              </FormField>
+              
+              <div className="space-y-3">
+                <label className="text-sm font-medium">
+                  Key Points
+                </label>
+                <div className="space-y-2">
+                  {(newStep.keyPoints || []).map((point, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        value={point}
+                        onChange={(e) => {
+                          const updatedPoints = [...(newStep.keyPoints || [])];
+                          updatedPoints[index] = e.target.value;
+                          setNewStep({...newStep, keyPoints: updatedPoints});
+                        }}
+                        placeholder="Enter key point"
+                        className="flex-1"
+                      />
+                      <IconButton
+                        icon={<X className="h-3.5 w-3.5" />}
+                        variant="ghost"
+                        size="sm"
+                        rounded
+                        onClick={() => {
+                          const updatedPoints = [...(newStep.keyPoints || [])];
+                          updatedPoints.splice(index, 1);
+                          setNewStep({...newStep, keyPoints: updatedPoints});
+                        }}
+                        label="Remove key point"
+                      />
+                    </div>
+                  ))}
+                  
+                  <ActionButton
+                    icon={<Plus className="h-3.5 w-3.5" />}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setNewStep({
+                      ...newStep, 
+                      keyPoints: [...(newStep.keyPoints || []), '']
+                    })}
+                    className="w-full"
+                  >
+                    Add Key Point
+                  </ActionButton>
+                </div>
               </div>
-              <div className="flex justify-end space-x-2">
-                <Button 
-                  variant="outline" 
+            </div>
+            
+            {/* Right Column - Settings */}
+            <div className="space-y-4">
+              <Card className="border-slate-200 dark:border-slate-800">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">Step Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField label="Step Type" htmlFor="newStepType">
+                    <Select value={newStep.type || 'presentation'} onValueChange={(value) => setNewStep({...newStep, type: value as StepType})}>
+                      <SelectTrigger id="newStepType" className="w-full">
+                        <SelectValue placeholder="Select step type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="presentation">Slide Deck</SelectItem>
+                        <SelectItem value="demo">Live Demo</SelectItem>
+                        <SelectItem value="discussion">Interactive Discussion</SelectItem>
+                        <SelectItem value="data">Data Visualization</SelectItem>
+                        <SelectItem value="feature">Feature Highlight</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormField>
+                  
+                  <FormField 
+                    label="Duration (minutes)" 
+                    htmlFor="newDuration"
+                    description="Estimated time for this step in minutes"
+                  >
+                    <Input
+                      id="newDuration"
+                      type="number"
+                      min="1"
+                      max="60"
+                      value={newStep.duration || 5}
+                      onChange={(e) => setNewStep({...newStep, duration: parseInt(e.target.value) || 5})}
+                      className="w-full"
+                    />
+                  </FormField>
+                </CardContent>
+              </Card>
+              
+              <DialogFooter className="flex flex-col gap-2 mt-6 sm:mt-0">
+                <ActionButton
+                  icon={<Plus className="h-4 w-4" />}
+                  variant="accent"
+                  onClick={handleAddStep}
+                  disabled={!newStep.title}
+                  className="w-full"
+                >
+                  Add Step
+                </ActionButton>
+                <Button
+                  variant="outline"
                   onClick={() => setIsAddingStep(false)}
+                  className="w-full"
                 >
                   Cancel
                 </Button>
-                <Button 
-                  onClick={handleAddStep}
-                  className="bg-[#39FF14] hover:bg-[#32E512] text-black"
-                >
-                  Add Step
-                </Button>
-              </div>
+              </DialogFooter>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+        </DialogContent>
+      </Dialog>
+    </DemoSection>
   );
 }
