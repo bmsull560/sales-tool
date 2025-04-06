@@ -14,12 +14,6 @@ import {
 } from "@/components/ui/tooltip";
 import { getSavedPreferences, savePreferences } from "@/lib/demo-calibrator-utils";
 import { type LayoutPreference } from "@/types/demo-calibrator";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Demo Script Calibrator | DemoGenius AI",
-  description: "Calibrate your demo script based on prospect profile and generate tailored presentations",
-};
 
 export default function DemoCalibratorPage() {
   const [layoutPreferenceState, setLayoutPreferenceState] = useState<LayoutPreference>('expanded');
