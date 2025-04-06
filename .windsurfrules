@@ -90,7 +90,6 @@ Keep components small and focused on a single responsibility.
 Stick to conventions over custom abstractions.
 
 Modularize logic and UI layers; avoid repetition.
-“A clean, modular storyboard layout designed for film production teams, blending visual previews with concise cinematographic direction. The minimalist aesthetic supports clarity, while the flow-based card system enables intuitive storytelling and collaborative editing.”
 
   Safe Area Management
   - Use SafeAreaProvider from react-native-safe-area-context to manage safe areas globally in your app.
